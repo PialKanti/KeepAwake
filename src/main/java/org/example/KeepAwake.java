@@ -21,7 +21,7 @@ public class KeepAwake {
 
     public void start() {
         running.set(true);
-        logger.info("KeepAwake started: interval={}ms, distance={}px" + idleCheckIntervalMillis + "ms, distance=" + moveDistance + "px");
+        logger.info("KeepAwake started: interval=" + idleCheckIntervalMillis + "ms, distance=" + moveDistance + "px");
 
         new Thread(() -> {
             Point lastMousePos = MouseInfo.getPointerInfo().getLocation();
@@ -35,7 +35,7 @@ public class KeepAwake {
                         logger.info("Mouse jiggled at: " + new Date());
                     }
                     lastMousePos = MouseInfo.getPointerInfo().getLocation();
-                } catch (InterruptedException _) {
+                } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
                 }
