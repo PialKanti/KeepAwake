@@ -21,7 +21,7 @@ public class KeepAwake {
 
     public void start() {
         running.set(true);
-        logger.info("KeepAwake started: interval=" + idleCheckIntervalMillis + "ms, distance=" + moveDistance + "px");
+        logger.info("KeepAwake started: interval = " + idleCheckIntervalMillis + "ms, distance = " + moveDistance + "px");
 
         new Thread(() -> {
             Point lastMousePos = MouseInfo.getPointerInfo().getLocation();

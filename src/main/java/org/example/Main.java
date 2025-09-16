@@ -3,6 +3,7 @@ package org.example;
 import picocli.CommandLine;
 
 import java.awt.*;
+import java.util.concurrent.CountDownLatch;
 
 @CommandLine.Command(
         name = "keepawake",
@@ -22,8 +23,20 @@ public class Main implements Runnable {
         try {
             KeepAwake keepAwake = new KeepAwake(interval, distance);
             keepAwake.start();
+
+            CountDownLatch latch = new CountDownLatch(1);
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                keepAwake.stop();
+                latch.countDown();
+                System.out.println("Shutting down KeepAwake...");
+            }));
+
+            latch.await();
         } catch (AWTException e) {
             System.err.println("Failed to initialize Robot: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
