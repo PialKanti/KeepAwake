@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.input.MouseSimulator;
+
 import java.awt.*;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -10,13 +12,14 @@ public class KeepAwake {
 
     private final int idleCheckIntervalMillis;
     private final int moveDistance;
-    private final Robot robot;
+
+    private final MouseSimulator mouseSimulator;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     public KeepAwake(int idleCheckIntervalMillis, int moveDistance) throws AWTException {
         this.idleCheckIntervalMillis = idleCheckIntervalMillis;
         this.moveDistance = moveDistance;
-        this.robot = new Robot();
+        this.mouseSimulator = new MouseSimulator();
     }
 
     public void start() {
@@ -24,17 +27,21 @@ public class KeepAwake {
         logger.info("KeepAwake started: interval = " + idleCheckIntervalMillis + "ms, distance = " + moveDistance + "px");
 
         new Thread(() -> {
-            Point lastMousePos = MouseInfo.getPointerInfo().getLocation();
+            Point lastMousePosition = mouseSimulator.getCurrentPosition();
 
             while (running.get()) {
                 try {
                     Thread.sleep(idleCheckIntervalMillis);
-                    Point currentPos = MouseInfo.getPointerInfo().getLocation();
-                    if (currentPos.equals(lastMousePos)) {
-                        moveMouse(currentPos);
+                    Point currentPosition = mouseSimulator.getCurrentPosition();
+
+                    boolean isIdle = currentPosition.equals(lastMousePosition);
+
+                    if (isIdle) {
+                        mouseSimulator.jiggle(moveDistance);
                         logger.info("Mouse jiggled at: " + new Date());
                     }
-                    lastMousePos = MouseInfo.getPointerInfo().getLocation();
+
+                    lastMousePosition = mouseSimulator.getCurrentPosition();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -45,12 +52,5 @@ public class KeepAwake {
 
     public void stop() {
         running.set(false);
-    }
-
-    private void moveMouse(Point currentPos) {
-        int x = currentPos.x;
-        int y = currentPos.y;
-        robot.mouseMove(x + moveDistance, y);
-        robot.mouseMove(x, y);
     }
 }
