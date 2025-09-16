@@ -4,6 +4,7 @@ import picocli.CommandLine;
 
 import java.awt.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
 
 @CommandLine.Command(
         name = "keepawake",
@@ -18,23 +19,25 @@ public class Main implements Runnable {
     @CommandLine.Option(names = {"-d", "--distance"}, description = "Mouse move distance in pixels", defaultValue = "1")
     private int distance;
 
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     @Override
     public void run() {
         try {
-            KeepAwake keepAwake = new KeepAwake(interval, distance);
-            keepAwake.start();
+            IdlePreventionService idlePreventionService = new IdlePreventionService(interval, distance);
+            idlePreventionService.start();
 
             CountDownLatch latch = new CountDownLatch(1);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                keepAwake.stop();
+                idlePreventionService.stop();
                 latch.countDown();
-                System.out.println("Shutting down KeepAwake...");
+                logger.info("Shutting down KeepAwake...");
             }));
 
             latch.await();
         } catch (AWTException e) {
-            System.err.println("Failed to initialize Robot: " + e.getMessage());
+            logger.severe("Failed to initialize Robot: " + e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
