@@ -19,7 +19,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.example.Main</mainClass>
+                  <mainClass>org.example.Application</mainClass>
                 </transformer>
               </transformers>
             </configuration>

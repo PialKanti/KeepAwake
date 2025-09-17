@@ -12,14 +12,14 @@ import java.util.logging.Logger;
         version = "KeepAwake 1.0",
         description = "Prevents system idle by moving the mouse periodically"
 )
-public class Main implements Runnable {
+public class Application implements Runnable {
     @CommandLine.Option(names = {"-i", "--interval"}, description = "Idle check interval in milliseconds", defaultValue = "30000")
     private int interval;
 
-    @CommandLine.Option(names = {"-d", "--distance"}, description = "Mouse move distance in pixels", defaultValue = "1")
+    @CommandLine.Option(names = {"-d", "--distance"}, description = "Mouse move distance in pixels", defaultValue = "2")
     private int distance;
 
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private static final Logger logger = Logger.getLogger(Application.class.getName());
 
     @Override
     public void run() {
@@ -44,7 +44,7 @@ public class Main implements Runnable {
     }
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Main()).execute(args);
+        int exitCode = new CommandLine(new Application()).execute(args);
         System.exit(exitCode);
     }
 }
