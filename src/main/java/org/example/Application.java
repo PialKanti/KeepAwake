@@ -1,5 +1,8 @@
 package org.example;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
+import org.example.input.SystemInputListener;
 import picocli.CommandLine;
 
 import java.awt.*;
@@ -25,6 +28,10 @@ public class Application implements Runnable {
     public void run() {
         try {
             IdlePreventionService idlePreventionService = new IdlePreventionService(interval, distance);
+
+            SystemInputListener inputListener = new SystemInputListener(idlePreventionService);
+            registerSystemInputListener(inputListener);
+
             idlePreventionService.start();
 
             CountDownLatch latch = new CountDownLatch(1);
@@ -46,5 +53,21 @@ public class Application implements Runnable {
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Application()).execute(args);
         System.exit(exitCode);
+    }
+
+    private static void registerSystemInputListener(SystemInputListener inputListener) {
+        try {
+            GlobalScreen.registerNativeHook();
+        } catch (NativeHookException ex) {
+            logger.severe("There was a problem registering the native hook.");
+            logger.severe(ex.getMessage());
+
+            System.exit(1);
+        }
+
+        GlobalScreen.addNativeKeyListener(inputListener);
+        GlobalScreen.addNativeMouseListener(inputListener);
+        GlobalScreen.addNativeMouseMotionListener(inputListener);
+        GlobalScreen.addNativeMouseWheelListener(inputListener);
     }
 }

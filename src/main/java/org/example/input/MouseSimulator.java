@@ -9,13 +9,7 @@ public class MouseSimulator {
         this.robot = new Robot();
     }
 
-    public void jiggle(int offsetX) {
-        Point currentPosition = getCurrentPosition();
-
-        int x = currentPosition.x;
-        int y = currentPosition.y;
-
-        robot.mouseMove(x + offsetX, y);
+    public void move(int x, int y) {
         robot.mouseMove(x, y);
     }
 

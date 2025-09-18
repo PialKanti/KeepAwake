@@ -13,6 +13,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <info.picocli.version>4.7.7</info.picocli.version>
+        <com.github.kwhat.jnativehook.version>2.2.2</com.github.kwhat.jnativehook.version>
     </properties>
 
     <dependencies>
@@ -20,6 +21,11 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${info.picocli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kwhat</groupId>
+            <artifactId>jnativehook</artifactId>
+            <version>${com.github.kwhat.jnativehook.version}</version>
         </dependency>
     </dependencies>
 

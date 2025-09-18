@@ -13,6 +13,7 @@ public class IdlePreventionService {
     private final int checkIntervalMs;
     private final int jiggleDistancePx;
 
+    private long lastActivityTime;
     private final MouseSimulator mouseSimulator;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
@@ -20,6 +21,7 @@ public class IdlePreventionService {
         this.checkIntervalMs = checkIntervalMs;
         this.jiggleDistancePx = jiggleDistancePx;
         this.mouseSimulator = new MouseSimulator();
+        this.lastActivityTime = System.currentTimeMillis();
     }
 
     public void start() {
@@ -35,14 +37,21 @@ public class IdlePreventionService {
         running.set(false);
     }
 
-    private void monitorIdleState() {
-        Point lastMousePosition = mouseSimulator.getCurrentPosition();
+    public void updateActivity() {
+        lastActivityTime = System.currentTimeMillis();
+    }
 
+    private void monitorIdleState() {
         while (running.get()) {
             try {
                 Thread.sleep(checkIntervalMs);
-                interruptIfIdle(lastMousePosition);
-                lastMousePosition = mouseSimulator.getCurrentPosition();
+
+                long idleTime = System.currentTimeMillis() - lastActivityTime;
+                if (idleTime >= checkIntervalMs) {
+                    stealthJiggle();
+                    lastActivityTime = System.currentTimeMillis();
+                    logger.info("Mouse jiggled at " + System.currentTimeMillis());
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -50,13 +59,15 @@ public class IdlePreventionService {
         }
     }
 
-    private void interruptIfIdle(Point lastMousePosition) {
-        Point currentPosition = mouseSimulator.getCurrentPosition();
-        boolean isIdle = currentPosition.equals(lastMousePosition);
+    private void stealthJiggle() {
+        Point current = mouseSimulator.getCurrentPosition();
+        int x = current.x;
+        int y = current.y;
 
-        if (isIdle) {
-            mouseSimulator.jiggle(jiggleDistancePx);
-            logger.info("Mouse jiggled at: " + new Date());
-        }
+        // Tiny square jiggle
+        mouseSimulator.move(x + jiggleDistancePx, y);
+        mouseSimulator.move(x + jiggleDistancePx, y + jiggleDistancePx);
+        mouseSimulator.move(x, y + jiggleDistancePx);
+        mouseSimulator.move(x, y);
     }
 }
